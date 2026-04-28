@@ -367,7 +367,8 @@ jobs:
           SESSION_ID: ${{ steps.trigger-devin.outputs.session_id }}
         run: |
           echo "Polling Devin session ${SESSION_ID} until completion..."
-          MAX_ATTEMPTS=60  # 60 * 30s = 30 minutes max
+          POLL_INTERVAL=20  # seconds between polls
+          MAX_ATTEMPTS=90   # 90 * 20s = 30 minutes max
           ATTEMPT=0
 
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
@@ -382,28 +383,29 @@ jobs:
 
             if [ "$CODE" -ne 200 ]; then
               echo "::warning::Failed to poll session (HTTP ${CODE}), retrying..."
-              sleep 30
+              sleep "$POLL_INTERVAL"
               continue
             fi
 
             STATUS=$(echo "$BODY" | jq -r '.status_enum // .status')
+            echo "Raw API response status_enum/status: $(echo "$BODY" | jq -r '{status_enum: .status_enum, status: .status}')"
             echo "Attempt ${ATTEMPT}/${MAX_ATTEMPTS} — Session status: ${STATUS}"
 
             case "$STATUS" in
-              finished|stopped)
+              finished|stopped|completed)
                 echo "Devin session completed with status: ${STATUS}"
                 exit 0
                 ;;
-              failed|error)
-                echo "::error::Devin session failed with status: ${STATUS}"
+              failed|error|timed_out|cancelled)
+                echo "::error::Devin session ended with status: ${STATUS}"
                 exit 1
                 ;;
             esac
 
-            sleep 30
+            sleep "$POLL_INTERVAL"
           done
 
-          echo "::error::Timed out waiting for Devin session to complete after $((MAX_ATTEMPTS * 30 / 60)) minutes"
+          echo "::error::Timed out waiting for Devin session to complete after $((MAX_ATTEMPTS * POLL_INTERVAL / 60)) minutes"
           exit 1
 
   verify-tests:
