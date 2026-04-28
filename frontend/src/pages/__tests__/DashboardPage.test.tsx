@@ -68,4 +68,31 @@ describe('DashboardPage', () => {
 
     expect(mockNavigate).toHaveBeenCalledWith('/reports');
   });
+
+  it('should render the New Client quick action button and navigate to /clients', async () => {
+    renderWithQueryClient(<DashboardPage />);
+
+    const button = await screen.findByRole('button', { name: /new client/i });
+    fireEvent.click(button);
+
+    expect(mockNavigate).toHaveBeenCalledWith('/clients');
+  });
+
+  it('should render the Log Time quick action button and navigate to /work-entry', async () => {
+    renderWithQueryClient(<DashboardPage />);
+
+    const button = await screen.findByRole('button', { name: /log time/i });
+    fireEvent.click(button);
+
+    expect(mockNavigate).toHaveBeenCalledWith('/work-entry');
+  });
+
+  it('should render the See Reports quick action button and navigate to /reports', async () => {
+    renderWithQueryClient(<DashboardPage />);
+
+    const button = await screen.findByRole('button', { name: /see reports/i });
+    fireEvent.click(button);
+
+    expect(mockNavigate).toHaveBeenCalledWith('/reports');
+  });
 });
