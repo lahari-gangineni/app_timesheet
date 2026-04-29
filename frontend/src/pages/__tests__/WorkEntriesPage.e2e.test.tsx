@@ -1,5 +1,4 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import WorkEntriesPage from '../WorkEntriesPage';
@@ -203,7 +202,7 @@ describe('WorkEntriesPage E2E', () => {
     it('should open the Add New Work Entry dialog', async () => {
       renderWithQueryClient(<WorkEntriesPage />);
 
-      await userEvent.click(await screen.findByRole('button', { name: /add work entry/i }));
+      fireEvent.click(await screen.findByRole('button', { name: /add work entry/i }));
 
       expect(screen.getByText('Add New Work Entry')).toBeInTheDocument();
     });
@@ -211,7 +210,7 @@ describe('WorkEntriesPage E2E', () => {
     it('should show a validation error when no client is selected', async () => {
       renderWithQueryClient(<WorkEntriesPage />);
 
-      await userEvent.click(await screen.findByRole('button', { name: /add work entry/i }));
+      fireEvent.click(await screen.findByRole('button', { name: /add work entry/i }));
 
       const form = screen.getByText('Add New Work Entry').closest('div')?.querySelector('form');
       fireEvent.submit(form!);
@@ -224,13 +223,13 @@ describe('WorkEntriesPage E2E', () => {
     it('should show a validation error for invalid hours', async () => {
       renderWithQueryClient(<WorkEntriesPage />);
 
-      await userEvent.click(await screen.findByRole('button', { name: /add work entry/i }));
+      fireEvent.click(await screen.findByRole('button', { name: /add work entry/i }));
 
       // Select a client via the MUI Select combobox
       const clientSelect = screen.getByRole('combobox', { hidden: true });
-      await userEvent.click(clientSelect);
+      fireEvent.mouseDown(clientSelect);
       const option = await screen.findByRole('option', { name: 'Acme Corp' });
-      await userEvent.click(option);
+      fireEvent.click(option);
 
       const form = screen.getByText('Add New Work Entry').closest('div')?.querySelector('form');
       fireEvent.submit(form!);
@@ -243,10 +242,10 @@ describe('WorkEntriesPage E2E', () => {
     it('should close the dialog when Cancel is clicked without calling the API', async () => {
       renderWithQueryClient(<WorkEntriesPage />);
 
-      await userEvent.click(await screen.findByRole('button', { name: /add work entry/i }));
+      fireEvent.click(await screen.findByRole('button', { name: /add work entry/i }));
       expect(screen.getByText('Add New Work Entry')).toBeInTheDocument();
 
-      await userEvent.click(screen.getByRole('button', { name: /cancel/i }));
+      fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
 
       await waitFor(() => {
         expect(screen.queryByText('Add New Work Entry')).not.toBeInTheDocument();
@@ -261,14 +260,14 @@ describe('WorkEntriesPage E2E', () => {
 
       renderWithQueryClient(<WorkEntriesPage />);
 
-      await userEvent.click(await screen.findByRole('button', { name: /add work entry/i }));
+      fireEvent.click(await screen.findByRole('button', { name: /add work entry/i }));
 
       const clientSelect = screen.getByRole('combobox', { hidden: true });
-      await userEvent.click(clientSelect);
+      fireEvent.mouseDown(clientSelect);
       const option = await screen.findByRole('option', { name: 'Acme Corp' });
-      await userEvent.click(option);
+      fireEvent.click(option);
 
-      await userEvent.type(screen.getByLabelText(/hours/i), '5');
+      fireEvent.change(screen.getByLabelText(/hours/i), { target: { value: '5' } });
 
       const form = screen.getByText('Add New Work Entry').closest('div')?.querySelector('form');
       fireEvent.submit(form!);
@@ -293,7 +292,7 @@ describe('WorkEntriesPage E2E', () => {
       await screen.findByText('Acme Corp');
 
       const editButton = screen.getAllByTestId('EditIcon')[0].closest('button')!;
-      await userEvent.click(editButton);
+      fireEvent.click(editButton);
 
       await waitFor(() => {
         expect(screen.getByText('Edit Work Entry')).toBeInTheDocument();
@@ -307,7 +306,7 @@ describe('WorkEntriesPage E2E', () => {
       renderWithQueryClient(<WorkEntriesPage />);
       await screen.findByText('Acme Corp');
 
-      await userEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
+      fireEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
 
       await waitFor(() => {
         expect(screen.getByText('Edit Work Entry')).toBeInTheDocument();
@@ -321,7 +320,7 @@ describe('WorkEntriesPage E2E', () => {
       renderWithQueryClient(<WorkEntriesPage />);
       await screen.findByText('Acme Corp');
 
-      await userEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
+      fireEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
       await waitFor(() => {
         expect(screen.getByText('Edit Work Entry')).toBeInTheDocument();
       });
@@ -342,7 +341,7 @@ describe('WorkEntriesPage E2E', () => {
       renderWithQueryClient(<WorkEntriesPage />);
       await screen.findByText('Acme Corp');
 
-      await userEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
+      fireEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
       await waitFor(() => {
         expect(screen.getByText('Edit Work Entry')).toBeInTheDocument();
       });
@@ -371,7 +370,7 @@ describe('WorkEntriesPage E2E', () => {
       renderWithQueryClient(<WorkEntriesPage />);
       await screen.findByText('Acme Corp');
 
-      await userEvent.click(screen.getAllByTestId('DeleteIcon')[0].closest('button')!);
+      fireEvent.click(screen.getAllByTestId('DeleteIcon')[0].closest('button')!);
 
       await waitFor(() => {
         expect(window.confirm).toHaveBeenCalledWith(
@@ -387,7 +386,7 @@ describe('WorkEntriesPage E2E', () => {
       renderWithQueryClient(<WorkEntriesPage />);
       await screen.findByText('Acme Corp');
 
-      await userEvent.click(screen.getAllByTestId('DeleteIcon')[0].closest('button')!);
+      fireEvent.click(screen.getAllByTestId('DeleteIcon')[0].closest('button')!);
 
       expect(window.confirm).toHaveBeenCalled();
       expect(mockDeleteWorkEntry).not.toHaveBeenCalled();
@@ -403,7 +402,7 @@ describe('WorkEntriesPage E2E', () => {
       mockGetWorkEntries.mockResolvedValue({ workEntries: [] });
       renderWithQueryClient(<WorkEntriesPage />);
 
-      await userEvent.click(await screen.findByRole('button', { name: /add work entry/i }));
+      fireEvent.click(await screen.findByRole('button', { name: /add work entry/i }));
 
       const form = screen.getByText('Add New Work Entry').closest('div')?.querySelector('form');
       fireEvent.submit(form!);
@@ -412,13 +411,13 @@ describe('WorkEntriesPage E2E', () => {
         expect(screen.getByText('Please select a client')).toBeInTheDocument();
       });
 
-      await userEvent.click(screen.getByRole('button', { name: /cancel/i }));
+      fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
 
       await waitFor(() => {
         expect(screen.queryByText('Add New Work Entry')).not.toBeInTheDocument();
       });
 
-      await userEvent.click(screen.getByRole('button', { name: /add work entry/i }));
+      fireEvent.click(screen.getByRole('button', { name: /add work entry/i }));
 
       await waitFor(() => {
         expect(screen.getByText('Add New Work Entry')).toBeInTheDocument();

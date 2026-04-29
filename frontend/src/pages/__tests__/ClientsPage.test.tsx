@@ -1,5 +1,4 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ClientsPage from '../ClientsPage';
@@ -43,7 +42,7 @@ describe('ClientsPage', () => {
       renderWithQueryClient(<ClientsPage />);
 
       const addButton = await screen.findByRole('button', { name: /add client/i });
-      await userEvent.click(addButton);
+      fireEvent.click(addButton);
 
       expect(screen.getByText('Add New Client')).toBeInTheDocument();
       expect(screen.getByLabelText(/client name/i)).toBeInTheDocument();
@@ -58,7 +57,7 @@ describe('ClientsPage', () => {
       renderWithQueryClient(<ClientsPage />);
 
       const addButton = await screen.findByRole('button', { name: /add client/i });
-      await userEvent.click(addButton);
+      fireEvent.click(addButton);
 
       const form = screen.getByText('Add New Client').closest('div')?.querySelector('form');
       fireEvent.submit(form!);
@@ -73,12 +72,12 @@ describe('ClientsPage', () => {
       renderWithQueryClient(<ClientsPage />);
 
       const addButton = await screen.findByRole('button', { name: /add client/i });
-      await userEvent.click(addButton);
+      fireEvent.click(addButton);
 
-      await userEvent.type(screen.getByLabelText(/client name/i), 'New Client');
-      await userEvent.type(screen.getByLabelText(/department/i), 'Engineering');
-      await userEvent.type(screen.getByLabelText(/email/i), 'client@example.com');
-      await userEvent.type(screen.getByLabelText(/description/i), 'A test client');
+      fireEvent.change(screen.getByLabelText(/client name/i), { target: { value: 'New Client' } });
+      fireEvent.change(screen.getByLabelText(/department/i), { target: { value: 'Engineering' } });
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'client@example.com' } });
+      fireEvent.change(screen.getByLabelText(/description/i), { target: { value: 'A test client' } });
 
       const form = screen.getByText('Add New Client').closest('div')?.querySelector('form');
       fireEvent.submit(form!);
@@ -109,7 +108,7 @@ describe('ClientsPage', () => {
       await screen.findByText('Acme Corp');
 
       const deleteButtons = screen.getAllByTestId('DeleteIcon');
-      await userEvent.click(deleteButtons[0].closest('button')!);
+      fireEvent.click(deleteButtons[0].closest('button')!);
 
       await waitFor(() => {
         expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete "Acme Corp"?');
@@ -131,7 +130,7 @@ describe('ClientsPage', () => {
       await screen.findByText('Acme Corp');
 
       const deleteButtons = screen.getAllByTestId('DeleteIcon');
-      await userEvent.click(deleteButtons[0].closest('button')!);
+      fireEvent.click(deleteButtons[0].closest('button')!);
 
       expect(window.confirm).toHaveBeenCalled();
       expect(mockDeleteClient).not.toHaveBeenCalled();

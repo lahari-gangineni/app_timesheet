@@ -1,5 +1,4 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import WorkEntriesPage from '../WorkEntriesPage';
@@ -66,7 +65,7 @@ describe('WorkEntriesPage', () => {
       renderWithQueryClient(<WorkEntriesPage />);
 
       const addButton = await screen.findByRole('button', { name: /add work entry/i });
-      await userEvent.click(addButton);
+      fireEvent.click(addButton);
 
       expect(screen.getByText('Add New Work Entry')).toBeInTheDocument();
       expect(screen.getAllByText('Client').length).toBeGreaterThanOrEqual(1);
@@ -81,7 +80,7 @@ describe('WorkEntriesPage', () => {
       renderWithQueryClient(<WorkEntriesPage />);
 
       const addButton = await screen.findByRole('button', { name: /add work entry/i });
-      await userEvent.click(addButton);
+      fireEvent.click(addButton);
 
       const form = screen.getByText('Add New Work Entry').closest('div')?.querySelector('form');
       fireEvent.submit(form!);
@@ -112,7 +111,7 @@ describe('WorkEntriesPage', () => {
       await screen.findByText('Acme Corp');
 
       const deleteButtons = screen.getAllByTestId('DeleteIcon');
-      await userEvent.click(deleteButtons[0].closest('button')!);
+      fireEvent.click(deleteButtons[0].closest('button')!);
 
       await waitFor(() => {
         expect(window.confirm).toHaveBeenCalled();
@@ -139,7 +138,7 @@ describe('WorkEntriesPage', () => {
       await screen.findByText('Acme Corp');
 
       const deleteButtons = screen.getAllByTestId('DeleteIcon');
-      await userEvent.click(deleteButtons[0].closest('button')!);
+      fireEvent.click(deleteButtons[0].closest('button')!);
 
       expect(window.confirm).toHaveBeenCalled();
       expect(mockDeleteWorkEntry).not.toHaveBeenCalled();

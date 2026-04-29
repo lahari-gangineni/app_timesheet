@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import LoginPage from '../LoginPage';
@@ -88,7 +87,7 @@ describe('LoginPage E2E', () => {
       renderLoginPage();
 
       const emailInput = screen.getByLabelText(/email address/i);
-      await userEvent.type(emailInput, 'test@example.com');
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
 
       expect(screen.getByRole('button', { name: /log in/i })).toBeEnabled();
     });
@@ -97,8 +96,8 @@ describe('LoginPage E2E', () => {
       mockLogin.mockResolvedValue(undefined);
       renderLoginPage();
 
-      await userEvent.type(screen.getByLabelText(/email address/i), 'user@test.com');
-      await userEvent.click(screen.getByRole('button', { name: /log in/i }));
+      fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: 'user@test.com' } });
+      fireEvent.click(screen.getByRole('button', { name: /log in/i }));
 
       await waitFor(() => {
         expect(mockLogin).toHaveBeenCalledWith('user@test.com');
@@ -109,8 +108,8 @@ describe('LoginPage E2E', () => {
       mockLogin.mockResolvedValue(undefined);
       renderLoginPage();
 
-      await userEvent.type(screen.getByLabelText(/email address/i), 'user@test.com');
-      await userEvent.click(screen.getByRole('button', { name: /log in/i }));
+      fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: 'user@test.com' } });
+      fireEvent.click(screen.getByRole('button', { name: /log in/i }));
 
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
@@ -121,8 +120,8 @@ describe('LoginPage E2E', () => {
       mockLogin.mockReturnValue(new Promise(() => {})); // never resolves
       renderLoginPage();
 
-      await userEvent.type(screen.getByLabelText(/email address/i), 'user@test.com');
-      await userEvent.click(screen.getByRole('button', { name: /log in/i }));
+      fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: 'user@test.com' } });
+      fireEvent.click(screen.getByRole('button', { name: /log in/i }));
 
       await waitFor(() => {
         expect(screen.getByLabelText(/email address/i)).toBeDisabled();
@@ -133,8 +132,8 @@ describe('LoginPage E2E', () => {
       mockLogin.mockReturnValue(new Promise(() => {})); // never resolves
       renderLoginPage();
 
-      await userEvent.type(screen.getByLabelText(/email address/i), 'user@test.com');
-      await userEvent.click(screen.getByRole('button', { name: /log in/i }));
+      fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: 'user@test.com' } });
+      fireEvent.click(screen.getByRole('button', { name: /log in/i }));
 
       await waitFor(() => {
         expect(screen.getByRole('progressbar')).toBeInTheDocument();
@@ -152,8 +151,8 @@ describe('LoginPage E2E', () => {
       });
       renderLoginPage();
 
-      await userEvent.type(screen.getByLabelText(/email address/i), 'bad@test.com');
-      await userEvent.click(screen.getByRole('button', { name: /log in/i }));
+      fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: 'bad@test.com' } });
+      fireEvent.click(screen.getByRole('button', { name: /log in/i }));
 
       await waitFor(() => {
         expect(screen.getByText('Invalid email address')).toBeInTheDocument();
@@ -164,8 +163,8 @@ describe('LoginPage E2E', () => {
       mockLogin.mockRejectedValue(new Error('Network error'));
       renderLoginPage();
 
-      await userEvent.type(screen.getByLabelText(/email address/i), 'bad@test.com');
-      await userEvent.click(screen.getByRole('button', { name: /log in/i }));
+      fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: 'bad@test.com' } });
+      fireEvent.click(screen.getByRole('button', { name: /log in/i }));
 
       await waitFor(() => {
         expect(screen.getByText('Login failed. Please try again.')).toBeInTheDocument();
@@ -181,14 +180,14 @@ describe('LoginPage E2E', () => {
 
       renderLoginPage();
 
-      await userEvent.type(screen.getByLabelText(/email address/i), 'user@test.com');
-      await userEvent.click(screen.getByRole('button', { name: /log in/i }));
+      fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: 'user@test.com' } });
+      fireEvent.click(screen.getByRole('button', { name: /log in/i }));
 
       await waitFor(() => {
         expect(screen.getByText('First error')).toBeInTheDocument();
       });
 
-      await userEvent.click(screen.getByRole('button', { name: /log in/i }));
+      fireEvent.click(screen.getByRole('button', { name: /log in/i }));
 
       await waitFor(() => {
         expect(screen.queryByText('First error')).not.toBeInTheDocument();
@@ -199,8 +198,8 @@ describe('LoginPage E2E', () => {
       mockLogin.mockRejectedValue({ response: { data: { error: 'Fail' } } });
       renderLoginPage();
 
-      await userEvent.type(screen.getByLabelText(/email address/i), 'user@test.com');
-      await userEvent.click(screen.getByRole('button', { name: /log in/i }));
+      fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: 'user@test.com' } });
+      fireEvent.click(screen.getByRole('button', { name: /log in/i }));
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /log in/i })).toBeEnabled();
@@ -219,10 +218,10 @@ describe('LoginPage E2E', () => {
       const emailInput = screen.getByLabelText(/email address/i);
       expect(screen.getByRole('button', { name: /log in/i })).toBeDisabled();
 
-      await userEvent.type(emailInput, 'journey@test.com');
+      fireEvent.change(emailInput, { target: { value: 'journey@test.com' } });
       expect(screen.getByRole('button', { name: /log in/i })).toBeEnabled();
 
-      await userEvent.click(screen.getByRole('button', { name: /log in/i }));
+      fireEvent.click(screen.getByRole('button', { name: /log in/i }));
 
       await waitFor(() => {
         expect(mockLogin).toHaveBeenCalledWith('journey@test.com');

@@ -1,5 +1,4 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ClientsPage from '../ClientsPage';
@@ -212,7 +211,7 @@ describe('ClientsPage E2E', () => {
     it('should open the Add New Client dialog with empty fields', async () => {
       renderWithQueryClient(<ClientsPage />);
 
-      await userEvent.click(await screen.findByRole('button', { name: /add client/i }));
+      fireEvent.click(await screen.findByRole('button', { name: /add client/i }));
 
       expect(screen.getByText('Add New Client')).toBeInTheDocument();
 
@@ -230,7 +229,7 @@ describe('ClientsPage E2E', () => {
     it('should show a validation error when submitting with an empty name', async () => {
       renderWithQueryClient(<ClientsPage />);
 
-      await userEvent.click(await screen.findByRole('button', { name: /add client/i }));
+      fireEvent.click(await screen.findByRole('button', { name: /add client/i }));
 
       const form = screen.getByText('Add New Client').closest('div')?.querySelector('form');
       fireEvent.submit(form!);
@@ -243,12 +242,12 @@ describe('ClientsPage E2E', () => {
     it('should submit all fields when creating a client', async () => {
       renderWithQueryClient(<ClientsPage />);
 
-      await userEvent.click(await screen.findByRole('button', { name: /add client/i }));
+      fireEvent.click(await screen.findByRole('button', { name: /add client/i }));
 
-      await userEvent.type(screen.getByLabelText(/client name/i), 'Gamma Inc');
-      await userEvent.type(screen.getByLabelText(/department/i), 'Sales');
-      await userEvent.type(screen.getByLabelText(/email/i), 'gamma@test.com');
-      await userEvent.type(screen.getByLabelText(/description/i), 'Gamma description');
+      fireEvent.change(screen.getByLabelText(/client name/i), { target: { value: 'Gamma Inc' } });
+      fireEvent.change(screen.getByLabelText(/department/i), { target: { value: 'Sales' } });
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'gamma@test.com' } });
+      fireEvent.change(screen.getByLabelText(/description/i), { target: { value: 'Gamma description' } });
 
       const form = screen.getByText('Add New Client').closest('div')?.querySelector('form');
       fireEvent.submit(form!);
@@ -266,8 +265,8 @@ describe('ClientsPage E2E', () => {
     it('should send optional fields as undefined when left empty', async () => {
       renderWithQueryClient(<ClientsPage />);
 
-      await userEvent.click(await screen.findByRole('button', { name: /add client/i }));
-      await userEvent.type(screen.getByLabelText(/client name/i), 'NameOnly Corp');
+      fireEvent.click(await screen.findByRole('button', { name: /add client/i }));
+      fireEvent.change(screen.getByLabelText(/client name/i), { target: { value: 'NameOnly Corp' } });
 
       const form = screen.getByText('Add New Client').closest('div')?.querySelector('form');
       fireEvent.submit(form!);
@@ -285,8 +284,8 @@ describe('ClientsPage E2E', () => {
     it('should close the dialog after a successful create', async () => {
       renderWithQueryClient(<ClientsPage />);
 
-      await userEvent.click(await screen.findByRole('button', { name: /add client/i }));
-      await userEvent.type(screen.getByLabelText(/client name/i), 'Close Test');
+      fireEvent.click(await screen.findByRole('button', { name: /add client/i }));
+      fireEvent.change(screen.getByLabelText(/client name/i), { target: { value: 'Close Test' } });
 
       const form = screen.getByText('Add New Client').closest('div')?.querySelector('form');
       fireEvent.submit(form!);
@@ -299,10 +298,10 @@ describe('ClientsPage E2E', () => {
     it('should close the dialog when Cancel is clicked without calling the API', async () => {
       renderWithQueryClient(<ClientsPage />);
 
-      await userEvent.click(await screen.findByRole('button', { name: /add client/i }));
+      fireEvent.click(await screen.findByRole('button', { name: /add client/i }));
       expect(screen.getByText('Add New Client')).toBeInTheDocument();
 
-      await userEvent.click(screen.getByRole('button', { name: /cancel/i }));
+      fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
 
       await waitFor(() => {
         expect(screen.queryByText('Add New Client')).not.toBeInTheDocument();
@@ -317,8 +316,8 @@ describe('ClientsPage E2E', () => {
 
       renderWithQueryClient(<ClientsPage />);
 
-      await userEvent.click(await screen.findByRole('button', { name: /add client/i }));
-      await userEvent.type(screen.getByLabelText(/client name/i), 'Fail Client');
+      fireEvent.click(await screen.findByRole('button', { name: /add client/i }));
+      fireEvent.change(screen.getByLabelText(/client name/i), { target: { value: 'Fail Client' } });
 
       const form = screen.getByText('Add New Client').closest('div')?.querySelector('form');
       fireEvent.submit(form!);
@@ -342,7 +341,7 @@ describe('ClientsPage E2E', () => {
       await screen.findByText('Acme Corp');
 
       const editButton = screen.getAllByTestId('EditIcon')[0].closest('button')!;
-      await userEvent.click(editButton);
+      fireEvent.click(editButton);
 
       await waitFor(() => {
         expect(screen.getByText('Edit Client')).toBeInTheDocument();
@@ -358,7 +357,7 @@ describe('ClientsPage E2E', () => {
       renderWithQueryClient(<ClientsPage />);
       await screen.findByText('Acme Corp');
 
-      await userEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
+      fireEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
 
       await waitFor(() => {
         expect(screen.getByText('Edit Client')).toBeInTheDocument();
@@ -372,15 +371,14 @@ describe('ClientsPage E2E', () => {
       renderWithQueryClient(<ClientsPage />);
       await screen.findByText('Acme Corp');
 
-      await userEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
+      fireEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
 
       await waitFor(() => {
         expect(screen.getByText('Edit Client')).toBeInTheDocument();
       });
 
       const emailInput = screen.getByLabelText(/email/i);
-      await userEvent.clear(emailInput);
-      await userEvent.type(emailInput, 'new@example.com');
+      fireEvent.change(emailInput, { target: { value: 'new@example.com' } });
 
       const form = screen.getByText('Edit Client').closest('div')?.querySelector('form');
       fireEvent.submit(form!);
@@ -399,7 +397,7 @@ describe('ClientsPage E2E', () => {
       renderWithQueryClient(<ClientsPage />);
       await screen.findByText('Acme Corp');
 
-      await userEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
+      fireEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
       await waitFor(() => {
         expect(screen.getByText('Edit Client')).toBeInTheDocument();
       });
@@ -417,7 +415,7 @@ describe('ClientsPage E2E', () => {
       renderWithQueryClient(<ClientsPage />);
       await screen.findByText('Beta LLC');
 
-      await userEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
+      fireEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
 
       await waitFor(() => {
         expect(screen.getByText('Edit Client')).toBeInTheDocument();
@@ -436,7 +434,7 @@ describe('ClientsPage E2E', () => {
       renderWithQueryClient(<ClientsPage />);
       await screen.findByText('Acme Corp');
 
-      await userEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
+      fireEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
       await waitFor(() => {
         expect(screen.getByText('Edit Client')).toBeInTheDocument();
       });
@@ -464,7 +462,7 @@ describe('ClientsPage E2E', () => {
       renderWithQueryClient(<ClientsPage />);
       await screen.findByText('Acme Corp');
 
-      await userEvent.click(screen.getAllByTestId('DeleteIcon')[0].closest('button')!);
+      fireEvent.click(screen.getAllByTestId('DeleteIcon')[0].closest('button')!);
 
       await waitFor(() => {
         expect(window.confirm).toHaveBeenCalledWith(
@@ -480,7 +478,7 @@ describe('ClientsPage E2E', () => {
       renderWithQueryClient(<ClientsPage />);
       await screen.findByText('Acme Corp');
 
-      await userEvent.click(screen.getAllByTestId('DeleteIcon')[0].closest('button')!);
+      fireEvent.click(screen.getAllByTestId('DeleteIcon')[0].closest('button')!);
 
       expect(window.confirm).toHaveBeenCalled();
       expect(mockDeleteClient).not.toHaveBeenCalled();
@@ -501,7 +499,7 @@ describe('ClientsPage E2E', () => {
       renderWithQueryClient(<ClientsPage />);
       await screen.findByText('Acme Corp');
 
-      await userEvent.click(screen.getByRole('button', { name: /clear all/i }));
+      fireEvent.click(screen.getByRole('button', { name: /clear all/i }));
 
       await waitFor(() => {
         expect(window.confirm).toHaveBeenCalledWith(
@@ -517,7 +515,7 @@ describe('ClientsPage E2E', () => {
       renderWithQueryClient(<ClientsPage />);
       await screen.findByText('Acme Corp');
 
-      await userEvent.click(screen.getByRole('button', { name: /clear all/i }));
+      fireEvent.click(screen.getByRole('button', { name: /clear all/i }));
 
       expect(window.confirm).toHaveBeenCalled();
       expect(mockDeleteAllClients).not.toHaveBeenCalled();
@@ -532,7 +530,7 @@ describe('ClientsPage E2E', () => {
       mockGetClients.mockResolvedValue({ clients: [] });
       renderWithQueryClient(<ClientsPage />);
 
-      await userEvent.click(await screen.findByRole('button', { name: /add client/i }));
+      fireEvent.click(await screen.findByRole('button', { name: /add client/i }));
 
       const form = screen.getByText('Add New Client').closest('div')?.querySelector('form');
       fireEvent.submit(form!);
@@ -541,13 +539,13 @@ describe('ClientsPage E2E', () => {
         expect(screen.getByText('Client name is required')).toBeInTheDocument();
       });
 
-      await userEvent.click(screen.getByRole('button', { name: /cancel/i }));
+      fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
 
       await waitFor(() => {
         expect(screen.queryByText('Add New Client')).not.toBeInTheDocument();
       });
 
-      await userEvent.click(screen.getByRole('button', { name: /add client/i }));
+      fireEvent.click(screen.getByRole('button', { name: /add client/i }));
 
       await waitFor(() => {
         expect(screen.getByText('Add New Client')).toBeInTheDocument();
@@ -579,11 +577,11 @@ describe('ClientsPage E2E', () => {
 
       await screen.findByText('No clients found. Create your first client to get started.');
 
-      await userEvent.click(screen.getByRole('button', { name: /add client/i }));
-      await userEvent.type(screen.getByLabelText(/client name/i), 'Journey Corp');
-      await userEvent.type(screen.getByLabelText(/department/i), 'QA');
-      await userEvent.type(screen.getByLabelText(/email/i), 'j@test.com');
-      await userEvent.type(screen.getByLabelText(/description/i), 'Journey desc');
+      fireEvent.click(screen.getByRole('button', { name: /add client/i }));
+      fireEvent.change(screen.getByLabelText(/client name/i), { target: { value: 'Journey Corp' } });
+      fireEvent.change(screen.getByLabelText(/department/i), { target: { value: 'QA' } });
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'j@test.com' } });
+      fireEvent.change(screen.getByLabelText(/description/i), { target: { value: 'Journey desc' } });
 
       const form = screen.getByText('Add New Client').closest('div')?.querySelector('form');
       fireEvent.submit(form!);
@@ -599,15 +597,14 @@ describe('ClientsPage E2E', () => {
 
       await screen.findByText('Journey Corp');
 
-      await userEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
+      fireEvent.click(screen.getAllByTestId('EditIcon')[0].closest('button')!);
 
       await waitFor(() => {
         expect(screen.getByText('Edit Client')).toBeInTheDocument();
       });
 
       const emailInput = screen.getByLabelText(/email/i);
-      await userEvent.clear(emailInput);
-      await userEvent.type(emailInput, 'updated@test.com');
+      fireEvent.change(emailInput, { target: { value: 'updated@test.com' } });
 
       const editForm = screen.getByText('Edit Client').closest('div')?.querySelector('form');
       fireEvent.submit(editForm!);

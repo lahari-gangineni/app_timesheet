@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ReportsPage from '../ReportsPage';
@@ -113,9 +112,9 @@ describe('ReportsPage E2E', () => {
       renderWithQueryClient(<ReportsPage />);
 
       const select = await screen.findByRole('combobox');
-      await userEvent.click(select);
+      fireEvent.mouseDown(select);
       const option = await screen.findByRole('option', { name: 'Acme Corp' });
-      await userEvent.click(option);
+      fireEvent.click(option);
 
       expect(await screen.findByText('24.50')).toBeInTheDocument();
       expect(screen.getByText('5')).toBeInTheDocument();
@@ -126,8 +125,8 @@ describe('ReportsPage E2E', () => {
       renderWithQueryClient(<ReportsPage />);
 
       const select = await screen.findByRole('combobox');
-      await userEvent.click(select);
-      await userEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
+      fireEvent.mouseDown(select);
+      fireEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
 
       expect(await screen.findByText('Total Hours')).toBeInTheDocument();
       expect(screen.getByText('24.50')).toBeInTheDocument();
@@ -138,8 +137,8 @@ describe('ReportsPage E2E', () => {
       renderWithQueryClient(<ReportsPage />);
 
       const select = await screen.findByRole('combobox');
-      await userEvent.click(select);
-      await userEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
+      fireEvent.mouseDown(select);
+      fireEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
 
       expect(await screen.findByText('Total Entries')).toBeInTheDocument();
     });
@@ -149,8 +148,8 @@ describe('ReportsPage E2E', () => {
       renderWithQueryClient(<ReportsPage />);
 
       const select = await screen.findByRole('combobox');
-      await userEvent.click(select);
-      await userEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
+      fireEvent.mouseDown(select);
+      fireEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
 
       expect(await screen.findByText('Average Hours per Entry')).toBeInTheDocument();
       expect(screen.getByText('4.90')).toBeInTheDocument();
@@ -161,8 +160,8 @@ describe('ReportsPage E2E', () => {
       renderWithQueryClient(<ReportsPage />);
 
       const select = await screen.findByRole('combobox');
-      await userEvent.click(select);
-      await userEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
+      fireEvent.mouseDown(select);
+      fireEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
 
       await screen.findByText('24.50');
 
@@ -177,8 +176,8 @@ describe('ReportsPage E2E', () => {
       renderWithQueryClient(<ReportsPage />);
 
       const select = await screen.findByRole('combobox');
-      await userEvent.click(select);
-      await userEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
+      fireEvent.mouseDown(select);
+      fireEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
 
       expect(await screen.findByText('Backend work')).toBeInTheDocument();
       expect(screen.getByText('Meeting')).toBeInTheDocument();
@@ -190,8 +189,8 @@ describe('ReportsPage E2E', () => {
       renderWithQueryClient(<ReportsPage />);
 
       const select = await screen.findByRole('combobox');
-      await userEvent.click(select);
-      await userEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
+      fireEvent.mouseDown(select);
+      fireEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
 
       expect(await screen.findByText('No description')).toBeInTheDocument();
     });
@@ -201,8 +200,8 @@ describe('ReportsPage E2E', () => {
       renderWithQueryClient(<ReportsPage />);
 
       const select = await screen.findByRole('combobox');
-      await userEvent.click(select);
-      await userEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
+      fireEvent.mouseDown(select);
+      fireEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
 
       expect(await screen.findByText('8 hours')).toBeInTheDocument();
       expect(screen.getByText('6.5 hours')).toBeInTheDocument();
@@ -219,8 +218,8 @@ describe('ReportsPage E2E', () => {
       renderWithQueryClient(<ReportsPage />);
 
       const select = await screen.findByRole('combobox');
-      await userEvent.click(select);
-      await userEvent.click(await screen.findByRole('option', { name: 'Beta LLC' }));
+      fireEvent.mouseDown(select);
+      fireEvent.click(await screen.findByRole('option', { name: 'Beta LLC' }));
 
       expect(
         await screen.findByText('No work entries found for this client.')
@@ -233,8 +232,8 @@ describe('ReportsPage E2E', () => {
       renderWithQueryClient(<ReportsPage />);
 
       const select = await screen.findByRole('combobox');
-      await userEvent.click(select);
-      await userEvent.click(await screen.findByRole('option', { name: 'Beta LLC' }));
+      fireEvent.mouseDown(select);
+      fireEvent.click(await screen.findByRole('option', { name: 'Beta LLC' }));
 
       const totalHoursCard = (await screen.findByText('Total Hours')).closest('[class*="MuiCard-root"]')!;
       expect(totalHoursCard).toHaveTextContent('0.00');
@@ -265,8 +264,8 @@ describe('ReportsPage E2E', () => {
       renderWithQueryClient(<ReportsPage />);
 
       const select = await screen.findByRole('combobox');
-      await userEvent.click(select);
-      await userEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
+      fireEvent.mouseDown(select);
+      fireEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
 
       await screen.findByText('24.50');
 
@@ -284,8 +283,8 @@ describe('ReportsPage E2E', () => {
       renderWithQueryClient(<ReportsPage />);
 
       const select = await screen.findByRole('combobox');
-      await userEvent.click(select);
-      await userEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
+      fireEvent.mouseDown(select);
+      fireEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
 
       await screen.findByText('24.50');
 
@@ -293,7 +292,7 @@ describe('ReportsPage E2E', () => {
         expect(screen.getByLabelText(/export as csv/i)).toBeEnabled();
       });
 
-      await userEvent.click(screen.getByLabelText(/export as csv/i));
+      fireEvent.click(screen.getByLabelText(/export as csv/i));
 
       await waitFor(() => {
         expect(mockExportClientReportCsv).toHaveBeenCalledWith(1);
@@ -308,8 +307,8 @@ describe('ReportsPage E2E', () => {
       renderWithQueryClient(<ReportsPage />);
 
       const select = await screen.findByRole('combobox');
-      await userEvent.click(select);
-      await userEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
+      fireEvent.mouseDown(select);
+      fireEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
 
       await screen.findByText('24.50');
 
@@ -317,7 +316,7 @@ describe('ReportsPage E2E', () => {
         expect(screen.getByLabelText(/export as pdf/i)).toBeEnabled();
       });
 
-      await userEvent.click(screen.getByLabelText(/export as pdf/i));
+      fireEvent.click(screen.getByLabelText(/export as pdf/i));
 
       await waitFor(() => {
         expect(mockExportClientReportPdf).toHaveBeenCalledWith(1);
@@ -330,8 +329,8 @@ describe('ReportsPage E2E', () => {
       renderWithQueryClient(<ReportsPage />);
 
       const select = await screen.findByRole('combobox');
-      await userEvent.click(select);
-      await userEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
+      fireEvent.mouseDown(select);
+      fireEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
 
       await screen.findByText('24.50');
 
@@ -339,7 +338,7 @@ describe('ReportsPage E2E', () => {
         expect(screen.getByLabelText(/export as csv/i)).toBeEnabled();
       });
 
-      await userEvent.click(screen.getByLabelText(/export as csv/i));
+      fireEvent.click(screen.getByLabelText(/export as csv/i));
 
       await waitFor(() => {
         expect(screen.getByText('Failed to export CSV report')).toBeInTheDocument();
@@ -352,8 +351,8 @@ describe('ReportsPage E2E', () => {
       renderWithQueryClient(<ReportsPage />);
 
       const select = await screen.findByRole('combobox');
-      await userEvent.click(select);
-      await userEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
+      fireEvent.mouseDown(select);
+      fireEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
 
       await screen.findByText('24.50');
 
@@ -361,7 +360,7 @@ describe('ReportsPage E2E', () => {
         expect(screen.getByLabelText(/export as pdf/i)).toBeEnabled();
       });
 
-      await userEvent.click(screen.getByLabelText(/export as pdf/i));
+      fireEvent.click(screen.getByLabelText(/export as pdf/i));
 
       await waitFor(() => {
         expect(screen.getByText('Failed to export PDF report')).toBeInTheDocument();
@@ -383,15 +382,15 @@ describe('ReportsPage E2E', () => {
 
       // Select first client
       const select = await screen.findByRole('combobox');
-      await userEvent.click(select);
-      await userEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
+      fireEvent.mouseDown(select);
+      fireEvent.click(await screen.findByRole('option', { name: 'Acme Corp' }));
 
       expect(await screen.findByText('24.50')).toBeInTheDocument();
       expect(screen.getByText('Backend work')).toBeInTheDocument();
 
       // Switch to second client
-      await userEvent.click(screen.getByRole('combobox'));
-      await userEvent.click(await screen.findByRole('option', { name: 'Beta LLC' }));
+      fireEvent.mouseDown(screen.getByRole('combobox'));
+      fireEvent.click(await screen.findByRole('option', { name: 'Beta LLC' }));
 
       expect(
         await screen.findByText('No work entries found for this client.')
