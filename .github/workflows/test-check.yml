@@ -365,15 +365,35 @@ jobs:
           DEVIN_API_KEY: ${{ secrets.DEVIN_API_KEY }}
           DEVIN_ORG_ID: ${{ secrets.DEVIN_ORG_ID }}
           SESSION_ID: ${{ steps.trigger-devin.outputs.session_id }}
+          GH_TOKEN: ${{ github.token }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          REPO: ${{ github.repository }}
         run: |
           echo "Polling Devin session ${SESSION_ID} until completion..."
           POLL_INTERVAL=20  # seconds between polls
           MAX_ATTEMPTS=90   # 90 * 20s = 30 minutes max
           ATTEMPT=0
 
+          # Record the current branch HEAD so we can detect new commits from Devin
+          INITIAL_SHA=$(gh api "repos/${REPO}/git/ref/heads/${PR_BRANCH}" --jq '.object.sha')
+          echo "Initial branch HEAD: ${INITIAL_SHA}"
+
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
             ATTEMPT=$((ATTEMPT + 1))
 
+            # --- Check 1: Has Devin pushed a new commit to the PR branch? ---
+            CURRENT_SHA=$(gh api "repos/${REPO}/git/ref/heads/${PR_BRANCH}" --jq '.object.sha' 2>/dev/null || echo "")
+            if [ -n "$CURRENT_SHA" ] && [ "$CURRENT_SHA" != "$INITIAL_SHA" ]; then
+              COMMIT_MSG=$(gh api "repos/${REPO}/git/commits/${CURRENT_SHA}" --jq '.message' 2>/dev/null || echo "")
+              echo "New commit detected on branch: ${CURRENT_SHA}"
+              echo "Commit message: ${COMMIT_MSG}"
+              if echo "$COMMIT_MSG" | grep -qi "test.*update\|update.*test"; then
+                echo "Devin has pushed test updates — proceeding to verification."
+                exit 0
+              fi
+            fi
+
+            # --- Check 2: Poll the Devin session status API ---
             RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
               -H "Authorization: Bearer ${DEVIN_API_KEY}" \
               "https://api.devin.ai/v3/organizations/${DEVIN_ORG_ID}/sessions/${SESSION_ID}")
