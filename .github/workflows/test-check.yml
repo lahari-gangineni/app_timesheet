@@ -334,21 +334,21 @@ jobs:
 
           DO NOT use test failures to guide your changes:
           - Do NOT run the test suite first and then fix whatever is failing.
+          - Do NOT run the test suite AFTER making changes to verify or fix failures.
           - Do NOT look at test output errors to decide what to change.
+          - Do NOT run \`npm test\`, \`npm run test\`, \`npx vitest\`, \`jest\`, or any test command at any point during this task.
           - Every test change you make must trace back to a specific line in the source code diff. If you cannot point to a diff line that justifies the test change, do not make it.
 
           CONSTRAINTS:
           - Only add or edit files in __tests__/ directories or files matching *.test.* / *.spec.* patterns.
           - Do NOT modify any source code, components, routes, middleware, or configuration files.
+          - Do NOT run any test commands. Your job is ONLY to update test files based on the diff, then commit and push. The CI pipeline will run the tests.
 
-          Testing conventions:
+          Testing conventions (for writing correct test syntax only — do NOT run these commands):
           - Frontend: Use Vitest with @testing-library/react. Tests go in __tests__/ subdirectory adjacent to the source file (e.g., frontend/src/pages/__tests__/ClientsPage.test.tsx). Test setup is at frontend/src/test/setup.ts (imports jest-dom matchers).
           - Backend: Use Jest with supertest. Tests go in backend/src/__tests__/ mirroring the source structure.
-          - Run \`cd frontend && npm run test\` to verify tests compile and execute.
-          - Run \`cd backend && npm test\` to verify backend tests.
-          - Run \`cd frontend && npm run build\` to ensure the build still succeeds.
 
-          After making changes, commit with message "test: update test suite for PR #${PR_NUMBER}" and push to branch '${PR_BRANCH}'.
+          After making changes, commit with message "test: update test suite for PR #${PR_NUMBER}" and push to branch '${PR_BRANCH}'. Do NOT run tests before or after committing.
           PROMPT_END
           )
 
