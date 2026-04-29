@@ -14,7 +14,7 @@ permissions:
 jobs:
   base-health-check:
     name: Health Check (Base Branch)
-    if: "!contains(github.event.pull_request.user.login, 'devin')"
+    if: "!contains(github.event.pull_request.user.login, 'devin') && !contains(github.event.sender.login, 'devin')"
     runs-on: ubuntu-latest
 
     steps:
@@ -137,7 +137,7 @@ jobs:
   pr-health-check:
     name: Health Check (PR Branch)
     needs: [base-health-check]
-    if: "!contains(github.event.pull_request.user.login, 'devin')"
+    if: "!contains(github.event.pull_request.user.login, 'devin') && !contains(github.event.sender.login, 'devin')"
     runs-on: ubuntu-latest
 
     steps:
@@ -260,7 +260,7 @@ jobs:
   devin-update-tests:
     name: Devin Session - Update Tests
     needs: [pr-health-check]
-    if: "!contains(github.event.pull_request.user.login, 'devin')"
+    if: "!contains(github.event.pull_request.user.login, 'devin') && !contains(github.event.sender.login, 'devin')"
     runs-on: ubuntu-latest
 
     steps:
@@ -442,7 +442,7 @@ jobs:
   verify-tests:
     name: Verify Updated Test Suite
     needs: [devin-update-tests]
-    if: always() && needs.devin-update-tests.result == 'success'
+    if: always() && (needs.devin-update-tests.result == 'success' || needs.devin-update-tests.result == 'skipped')
     runs-on: ubuntu-latest
     outputs:
       frontend_passed: ${{ steps.frontend-tests.outputs.passed }}
