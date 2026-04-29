@@ -256,4 +256,104 @@ describe('DashboardPage E2E', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/work-entries');
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // Conditional description rendering
+  // ---------------------------------------------------------------------------
+  describe('conditional description rendering', () => {
+    it('should not render description text for entries with null description', async () => {
+      mockGetClients.mockResolvedValue({ clients: sampleClients });
+      mockGetWorkEntries.mockResolvedValue({ workEntries: sampleWorkEntries });
+      renderWithProviders(<DashboardPage />);
+
+      expect(await screen.findByText('Backend work')).toBeInTheDocument();
+      expect(screen.getByText('Meeting')).toBeInTheDocument();
+      expect(screen.queryByText('null')).not.toBeInTheDocument();
+    });
+
+    it('should render description only when present', async () => {
+      const entriesWithMixedDescriptions = [
+        { id: 1, client_id: 1, client_name: 'Acme Corp', hours: 8, date: '2024-03-01', description: 'Visible desc', created_at: '2024-03-01', updated_at: '2024-03-01' },
+        { id: 2, client_id: 2, client_name: 'Beta LLC', hours: 3, date: '2024-03-02', description: null, created_at: '2024-03-02', updated_at: '2024-03-02' },
+      ];
+      mockGetClients.mockResolvedValue({ clients: sampleClients });
+      mockGetWorkEntries.mockResolvedValue({ workEntries: entriesWithMixedDescriptions });
+      renderWithProviders(<DashboardPage />);
+
+      expect(await screen.findByText('Visible desc')).toBeInTheDocument();
+      expect(screen.queryByText('null')).not.toBeInTheDocument();
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Recent entries 5-entry limit
+  // ---------------------------------------------------------------------------
+  describe('recent entries limit', () => {
+    it('should display at most 5 recent work entries', async () => {
+      const manyEntries = Array.from({ length: 7 }, (_, i) => ({
+        id: i + 1,
+        client_id: 1,
+        client_name: `Client-${i + 1}`,
+        hours: i + 1,
+        date: `2024-03-0${i + 1}`,
+        description: `Task ${i + 1}`,
+        created_at: `2024-03-0${i + 1}`,
+        updated_at: `2024-03-0${i + 1}`,
+      }));
+
+      mockGetClients.mockResolvedValue({ clients: sampleClients });
+      mockGetWorkEntries.mockResolvedValue({ workEntries: manyEntries });
+      renderWithProviders(<DashboardPage />);
+
+      expect(await screen.findByText('Client-1')).toBeInTheDocument();
+      for (let i = 2; i <= 5; i++) {
+        expect(screen.getByText(`Client-${i}`)).toBeInTheDocument();
+      }
+      expect(screen.queryByText('Client-6')).not.toBeInTheDocument();
+      expect(screen.queryByText('Client-7')).not.toBeInTheDocument();
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // API error graceful degradation
+  // ---------------------------------------------------------------------------
+  describe('API error handling', () => {
+    it('should still render page structure when API calls fail', async () => {
+      mockGetClients.mockRejectedValue(new Error('Network error'));
+      mockGetWorkEntries.mockRejectedValue(new Error('Network error'));
+      renderWithProviders(<DashboardPage />);
+
+      expect(await screen.findByText('Dashboard')).toBeInTheDocument();
+      expect(screen.getByText('Quick Actions')).toBeInTheDocument();
+      expect(screen.getByText('No work entries yet')).toBeInTheDocument();
+    });
+
+    it('should show zero stats when API calls fail', async () => {
+      mockGetClients.mockRejectedValue(new Error('Server error'));
+      mockGetWorkEntries.mockRejectedValue(new Error('Server error'));
+      renderWithProviders(<DashboardPage />);
+
+      const hoursCard = (await screen.findByText('Total Hours')).closest('[class*="MuiCard-root"]')!;
+      expect(hoursCard).toHaveTextContent('0.00');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Route differentiation: Log Time vs Add Entry
+  // ---------------------------------------------------------------------------
+  describe('route differentiation', () => {
+    it('should navigate Log Time to /work-entry and Add Entry to /work-entries', async () => {
+      mockGetClients.mockResolvedValue({ clients: sampleClients });
+      mockGetWorkEntries.mockResolvedValue({ workEntries: sampleWorkEntries });
+      renderWithProviders(<DashboardPage />);
+
+      await userEvent.click(await screen.findByRole('button', { name: /log time/i }));
+      expect(mockNavigate).toHaveBeenCalledWith('/work-entry');
+
+      mockNavigate.mockClear();
+
+      await userEvent.click(screen.getByRole('button', { name: /add entry/i }));
+      expect(mockNavigate).toHaveBeenCalledWith('/work-entries');
+    });
+  });
 });

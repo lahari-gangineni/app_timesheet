@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import DashboardPage from '../DashboardPage';
+import apiClient from '../../api/client';
 
 const mockNavigate = vi.fn();
 
@@ -152,6 +153,72 @@ describe('DashboardPage', () => {
     it('should render Recent Work Entries heading', async () => {
       renderWithQueryClient(<DashboardPage />);
       expect(await screen.findByText('Recent Work Entries')).toBeInTheDocument();
+    });
+  });
+
+  describe('Empty state', () => {
+    it('should display "No work entries yet" when there are no work entries', async () => {
+      vi.mocked(apiClient.getClients).mockResolvedValueOnce({ clients: [] });
+      vi.mocked(apiClient.getWorkEntries).mockResolvedValueOnce({ workEntries: [] });
+      renderWithQueryClient(<DashboardPage />);
+
+      expect(await screen.findByText('No work entries yet')).toBeInTheDocument();
+    });
+
+    it('should show zero stat values when no data exists', async () => {
+      vi.mocked(apiClient.getClients).mockResolvedValueOnce({ clients: [] });
+      vi.mocked(apiClient.getWorkEntries).mockResolvedValueOnce({ workEntries: [] });
+      renderWithQueryClient(<DashboardPage />);
+
+      expect(await screen.findByText('0.00')).toBeInTheDocument();
+      const zeroes = screen.getAllByText('0');
+      expect(zeroes.length).toBe(2);
+    });
+  });
+
+  describe('Conditional description rendering', () => {
+    it('should not render description text for entries with null description', async () => {
+      vi.mocked(apiClient.getClients).mockResolvedValueOnce({ clients: [] });
+      vi.mocked(apiClient.getWorkEntries).mockResolvedValueOnce({
+        workEntries: [
+          { id: 1, client_id: 1, hours: 3, description: null, date: '2024-01-15', created_at: '2024-01-15', updated_at: '2024-01-15', client_name: 'NullDesc Corp' },
+        ],
+      });
+      renderWithQueryClient(<DashboardPage />);
+
+      expect(await screen.findByText('NullDesc Corp')).toBeInTheDocument();
+      expect(screen.getByText(/3 hours/)).toBeInTheDocument();
+      expect(screen.queryByText('null')).not.toBeInTheDocument();
+    });
+
+    it('should render description text only for entries that have one', async () => {
+      vi.mocked(apiClient.getClients).mockResolvedValueOnce({ clients: [] });
+      vi.mocked(apiClient.getWorkEntries).mockResolvedValueOnce({
+        workEntries: [
+          { id: 1, client_id: 1, hours: 5, description: 'Has desc', date: '2024-01-15', created_at: '2024-01-15', updated_at: '2024-01-15', client_name: 'Alpha Inc' },
+          { id: 2, client_id: 1, hours: 2, description: null, date: '2024-01-16', created_at: '2024-01-16', updated_at: '2024-01-16', client_name: 'Beta LLC' },
+        ],
+      });
+      renderWithQueryClient(<DashboardPage />);
+
+      expect(await screen.findByText('Has desc')).toBeInTheDocument();
+      expect(screen.queryByText('null')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Route differentiation', () => {
+    it('should navigate "Log Time" to /work-entry and "Add Entry" to /work-entries', async () => {
+      renderWithQueryClient(<DashboardPage />);
+
+      const logTimeBtn = await screen.findByRole('button', { name: /Log Time/i });
+      fireEvent.click(logTimeBtn);
+      expect(mockNavigate).toHaveBeenCalledWith('/work-entry');
+
+      mockNavigate.mockClear();
+
+      const addEntryBtn = screen.getByRole('button', { name: /Add Entry/i });
+      fireEvent.click(addEntryBtn);
+      expect(mockNavigate).toHaveBeenCalledWith('/work-entries');
     });
   });
 });
