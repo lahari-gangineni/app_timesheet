@@ -277,8 +277,8 @@ describe('ReportsPage E2E', () => {
 
     it('should call exportClientReportCsv when CSV button is clicked', async () => {
       mockExportClientReportCsv.mockResolvedValue(new Blob(['csv data']));
-      global.URL.createObjectURL = vi.fn(() => 'blob:url');
-      global.URL.revokeObjectURL = vi.fn();
+      globalThis.URL.createObjectURL = vi.fn(() => 'blob:url') as typeof URL.createObjectURL;
+      globalThis.URL.revokeObjectURL = vi.fn() as typeof URL.revokeObjectURL;
 
       renderWithQueryClient(<ReportsPage />);
 
@@ -301,8 +301,8 @@ describe('ReportsPage E2E', () => {
 
     it('should call exportClientReportPdf when PDF button is clicked', async () => {
       mockExportClientReportPdf.mockResolvedValue(new Blob(['pdf data']));
-      global.URL.createObjectURL = vi.fn(() => 'blob:url');
-      global.URL.revokeObjectURL = vi.fn();
+      globalThis.URL.createObjectURL = vi.fn(() => 'blob:url') as typeof URL.createObjectURL;
+      globalThis.URL.revokeObjectURL = vi.fn() as typeof URL.revokeObjectURL;
 
       renderWithQueryClient(<ReportsPage />);
 

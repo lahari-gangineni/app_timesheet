@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import DashboardPage from '../DashboardPage';
@@ -67,5 +67,38 @@ describe('DashboardPage', () => {
     fireEvent.click(card);
 
     expect(mockNavigate).toHaveBeenCalledWith('/reports');
+  });
+
+  it('should display totalHours in the Total Clients card', async () => {
+    renderWithQueryClient(<DashboardPage />);
+
+    const card = (await screen.findByText('Total Clients')).closest('[class*="MuiCard-root"]')!;
+    await waitFor(() => {
+      expect(card).toHaveTextContent('12.50');
+    });
+  });
+
+  it('should display clients.length in the Total Hours card', async () => {
+    renderWithQueryClient(<DashboardPage />);
+
+    const card = (await screen.findByText('Total Hours')).closest('[class*="MuiCard-root"]')!;
+    await waitFor(() => {
+      expect(card).toHaveTextContent('2');
+    });
+  });
+
+  it('should render the New Client button', async () => {
+    renderWithQueryClient(<DashboardPage />);
+    expect(await screen.findByRole('button', { name: /new client/i })).toBeInTheDocument();
+  });
+
+  it('should render the Log Time button', async () => {
+    renderWithQueryClient(<DashboardPage />);
+    expect(await screen.findByRole('button', { name: /log time/i })).toBeInTheDocument();
+  });
+
+  it('should render the See Reports button', async () => {
+    renderWithQueryClient(<DashboardPage />);
+    expect(await screen.findByRole('button', { name: /see reports/i })).toBeInTheDocument();
   });
 });
