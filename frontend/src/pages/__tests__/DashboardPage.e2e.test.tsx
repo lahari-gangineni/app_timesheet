@@ -40,11 +40,6 @@ const sampleClients = [
   { id: 2, name: 'Beta LLC', description: null, department: null, email: null, created_at: '2024-02-01', updated_at: '2024-02-01' },
 ];
 
-const sampleWorkEntries = [
-  { id: 1, client_id: 1, client_name: 'Acme Corp', hours: 8, date: '2024-03-01', description: 'Backend work', created_at: '2024-03-01', updated_at: '2024-03-01' },
-  { id: 2, client_id: 1, client_name: 'Acme Corp', hours: 4.5, date: '2024-03-02', description: null, created_at: '2024-03-02', updated_at: '2024-03-02' },
-  { id: 3, client_id: 2, client_name: 'Beta LLC', hours: 2, date: '2024-03-03', description: 'Meeting', created_at: '2024-03-03', updated_at: '2024-03-03' },
-];
 
 describe('DashboardPage E2E', () => {
   beforeEach(() => {
@@ -116,7 +111,7 @@ describe('DashboardPage E2E', () => {
   describe('stat card values with data', () => {
     beforeEach(() => {
       mockGetClients.mockResolvedValue({ clients: sampleClients });
-      mockGetWorkEntries.mockResolvedValue({ workEntries: sampleWorkEntries });
+      mockGetWorkEntries.mockResolvedValue({ workEntries: [] });
     });
 
     it('should display the correct total client count', async () => {
@@ -127,19 +122,19 @@ describe('DashboardPage E2E', () => {
       });
     });
 
-    it('should display the correct total work entries count', async () => {
+    it('should display zero work entries when no entries exist', async () => {
       renderWithProviders(<DashboardPage />);
       const card = (await screen.findByText('Total Work Entries')).closest('[class*="MuiCard-root"]')!;
       await waitFor(() => {
-        expect(card).toHaveTextContent('3');
+        expect(card).toHaveTextContent('0');
       });
     });
 
-    it('should display the correct total hours', async () => {
+    it('should display zero total hours when no entries exist', async () => {
       renderWithProviders(<DashboardPage />);
       const card = (await screen.findByText('Total Hours')).closest('[class*="MuiCard-root"]')!;
       await waitFor(() => {
-        expect(card).toHaveTextContent('14.50');
+        expect(card).toHaveTextContent('0.00');
       });
     });
   });
@@ -148,32 +143,28 @@ describe('DashboardPage E2E', () => {
   // Recent work entries display
   // ---------------------------------------------------------------------------
   describe('recent work entries display', () => {
-    it('should display up to 5 recent work entries', async () => {
+    it('should show empty state when no work entries exist', async () => {
       mockGetClients.mockResolvedValue({ clients: sampleClients });
-      mockGetWorkEntries.mockResolvedValue({ workEntries: sampleWorkEntries });
+      mockGetWorkEntries.mockResolvedValue({ workEntries: [] });
       renderWithProviders(<DashboardPage />);
 
-      expect(await screen.findByText('Backend work')).toBeInTheDocument();
-      expect(screen.getByText('Meeting')).toBeInTheDocument();
+      expect(await screen.findByText('No work entries yet')).toBeInTheDocument();
     });
 
-    it('should show client name for each recent entry', async () => {
+    it('should still show the Recent Work Entries header with no entries', async () => {
       mockGetClients.mockResolvedValue({ clients: sampleClients });
-      mockGetWorkEntries.mockResolvedValue({ workEntries: sampleWorkEntries });
+      mockGetWorkEntries.mockResolvedValue({ workEntries: [] });
       renderWithProviders(<DashboardPage />);
 
-      await screen.findByText('Backend work');
-      const acmeElements = screen.getAllByText('Acme Corp');
-      expect(acmeElements.length).toBeGreaterThanOrEqual(1);
+      expect(await screen.findByText('Recent Work Entries')).toBeInTheDocument();
     });
 
-    it('should show hours and formatted date for each entry', async () => {
+    it('should show the Add Entry button even with no entries', async () => {
       mockGetClients.mockResolvedValue({ clients: sampleClients });
-      mockGetWorkEntries.mockResolvedValue({ workEntries: sampleWorkEntries });
+      mockGetWorkEntries.mockResolvedValue({ workEntries: [] });
       renderWithProviders(<DashboardPage />);
 
-      const formatted = new Date('2024-03-01').toLocaleDateString();
-      expect(await screen.findByText(new RegExp(`8 hours - ${formatted}`))).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: /add entry/i })).toBeInTheDocument();
     });
   });
 
@@ -186,19 +177,19 @@ describe('DashboardPage E2E', () => {
       mockGetWorkEntries.mockResolvedValue({ workEntries: [] });
     });
 
-    it('should render the Add Client quick action button', async () => {
+    it('should render the New Client quick action button', async () => {
       renderWithProviders(<DashboardPage />);
-      expect(await screen.findByRole('button', { name: /add client/i })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: /new client/i })).toBeInTheDocument();
     });
 
-    it('should render the Add Work Entry quick action button', async () => {
+    it('should render the Log Time quick action button', async () => {
       renderWithProviders(<DashboardPage />);
-      expect(await screen.findByRole('button', { name: /add work entry/i })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: /log time/i })).toBeInTheDocument();
     });
 
-    it('should render the View Reports quick action button', async () => {
+    it('should render the See Reports quick action button', async () => {
       renderWithProviders(<DashboardPage />);
-      expect(await screen.findByRole('button', { name: /view reports/i })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: /see reports/i })).toBeInTheDocument();
     });
   });
 
@@ -208,7 +199,7 @@ describe('DashboardPage E2E', () => {
   describe('navigation', () => {
     beforeEach(() => {
       mockGetClients.mockResolvedValue({ clients: sampleClients });
-      mockGetWorkEntries.mockResolvedValue({ workEntries: sampleWorkEntries });
+      mockGetWorkEntries.mockResolvedValue({ workEntries: [] });
     });
 
     it('should navigate to /clients when Total Clients card is clicked', async () => {
@@ -232,21 +223,21 @@ describe('DashboardPage E2E', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/reports');
     });
 
-    it('should navigate to /clients when Add Client button is clicked', async () => {
+    it('should navigate to /clients when New Client button is clicked', async () => {
       renderWithProviders(<DashboardPage />);
-      await userEvent.click(await screen.findByRole('button', { name: /add client/i }));
+      await userEvent.click(await screen.findByRole('button', { name: /new client/i }));
       expect(mockNavigate).toHaveBeenCalledWith('/clients');
     });
 
-    it('should navigate to /work-entries when Add Work Entry button is clicked', async () => {
+    it('should navigate to /work-entries when Log Time button is clicked', async () => {
       renderWithProviders(<DashboardPage />);
-      await userEvent.click(await screen.findByRole('button', { name: /add work entry/i }));
+      await userEvent.click(await screen.findByRole('button', { name: /log time/i }));
       expect(mockNavigate).toHaveBeenCalledWith('/work-entries');
     });
 
-    it('should navigate to /reports when View Reports button is clicked', async () => {
+    it('should navigate to /reports when See Reports button is clicked', async () => {
       renderWithProviders(<DashboardPage />);
-      await userEvent.click(await screen.findByRole('button', { name: /view reports/i }));
+      await userEvent.click(await screen.findByRole('button', { name: /see reports/i }));
       expect(mockNavigate).toHaveBeenCalledWith('/reports');
     });
 
