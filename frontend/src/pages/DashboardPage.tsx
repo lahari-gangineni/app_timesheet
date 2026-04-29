@@ -34,13 +34,15 @@ const DashboardPage: React.FC = () => {
   const clients = clientsData?.clients || [];
   const workEntries = workEntriesData?.workEntries || [];
 
-  const totalHours = workEntries.reduce((sum: number, entry: { hours: number }) => sum + entry.hours, 0);
+  const totalHours = workEntries.length
+    ? workEntries.reduce((sum: number, entry: { hours: number }) => sum + entry.hours)
+    : 0;
   const recentEntries = workEntries.slice(0, 5);
 
   const statsCards = [
     {
       title: 'Total Clients',
-      value: totalHours.toFixed(2),
+      value: clients.length,
       icon: <BusinessIcon />,
       color: '#1976d2',
       action: () => navigate('/clients'),
@@ -54,7 +56,7 @@ const DashboardPage: React.FC = () => {
     },
     {
       title: 'Total Hours',
-      value: clients.length,
+      value: totalHours.toFixed(2),
       icon: <AssessmentIcon />,
       color: '#f57c00',
       action: () => navigate('/reports'),
