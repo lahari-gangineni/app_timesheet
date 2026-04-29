@@ -1,4 +1,5 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
@@ -78,10 +79,10 @@ describe('DashboardPage E2E', () => {
       renderWithProviders(<DashboardPage />);
 
       const clientsCard = (await screen.findByText('Total Clients')).closest('[class*="MuiCard-root"]')!;
-      expect(clientsCard).toHaveTextContent('0.00');
+      expect(clientsCard).toHaveTextContent('0');
 
       const hoursCard = screen.getByText('Total Hours').closest('[class*="MuiCard-root"]')!;
-      expect(hoursCard).toHaveTextContent('0');
+      expect(hoursCard).toHaveTextContent('0.00');
     });
 
     it('should display the Recent Work Entries section header', async () => {
@@ -122,7 +123,7 @@ describe('DashboardPage E2E', () => {
       renderWithProviders(<DashboardPage />);
       const card = (await screen.findByText('Total Clients')).closest('[class*="MuiCard-root"]')!;
       await waitFor(() => {
-        expect(card).toHaveTextContent('14.50');
+        expect(card).toHaveTextContent('2');
       });
     });
 
@@ -138,7 +139,7 @@ describe('DashboardPage E2E', () => {
       renderWithProviders(<DashboardPage />);
       const card = (await screen.findByText('Total Hours')).closest('[class*="MuiCard-root"]')!;
       await waitFor(() => {
-        expect(card).toHaveTextContent('2');
+        expect(card).toHaveTextContent('14.50');
       });
     });
   });
@@ -185,19 +186,19 @@ describe('DashboardPage E2E', () => {
       mockGetWorkEntries.mockResolvedValue({ workEntries: [] });
     });
 
-    it('should render the New Client quick action button', async () => {
+    it('should render the Add Client quick action button', async () => {
       renderWithProviders(<DashboardPage />);
-      expect(await screen.findByRole('button', { name: /new client/i })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: /add client/i })).toBeInTheDocument();
     });
 
-    it('should render the Log Time quick action button', async () => {
+    it('should render the Add Work Entry quick action button', async () => {
       renderWithProviders(<DashboardPage />);
-      expect(await screen.findByRole('button', { name: /log time/i })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: /add work entry/i })).toBeInTheDocument();
     });
 
-    it('should render the See Reports quick action button', async () => {
+    it('should render the View Reports quick action button', async () => {
       renderWithProviders(<DashboardPage />);
-      expect(await screen.findByRole('button', { name: /see reports/i })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: /view reports/i })).toBeInTheDocument();
     });
   });
 
@@ -213,45 +214,45 @@ describe('DashboardPage E2E', () => {
     it('should navigate to /clients when Total Clients card is clicked', async () => {
       renderWithProviders(<DashboardPage />);
       const card = (await screen.findByText('Total Clients')).closest('[class*="MuiCard-root"]')!;
-      fireEvent.click(card);
+      await userEvent.click(card);
       expect(mockNavigate).toHaveBeenCalledWith('/clients');
     });
 
     it('should navigate to /work-entries when Total Work Entries card is clicked', async () => {
       renderWithProviders(<DashboardPage />);
       const card = (await screen.findByText('Total Work Entries')).closest('[class*="MuiCard-root"]')!;
-      fireEvent.click(card);
+      await userEvent.click(card);
       expect(mockNavigate).toHaveBeenCalledWith('/work-entries');
     });
 
     it('should navigate to /reports when Total Hours card is clicked', async () => {
       renderWithProviders(<DashboardPage />);
       const card = (await screen.findByText('Total Hours')).closest('[class*="MuiCard-root"]')!;
-      fireEvent.click(card);
+      await userEvent.click(card);
       expect(mockNavigate).toHaveBeenCalledWith('/reports');
     });
 
-    it('should navigate to /clients when New Client button is clicked', async () => {
+    it('should navigate to /clients when Add Client button is clicked', async () => {
       renderWithProviders(<DashboardPage />);
-      fireEvent.click(await screen.findByRole('button', { name: /new client/i }));
+      await userEvent.click(await screen.findByRole('button', { name: /add client/i }));
       expect(mockNavigate).toHaveBeenCalledWith('/clients');
     });
 
-    it('should navigate to /work-entries when Log Time button is clicked', async () => {
+    it('should navigate to /work-entries when Add Work Entry button is clicked', async () => {
       renderWithProviders(<DashboardPage />);
-      fireEvent.click(await screen.findByRole('button', { name: /log time/i }));
+      await userEvent.click(await screen.findByRole('button', { name: /add work entry/i }));
       expect(mockNavigate).toHaveBeenCalledWith('/work-entries');
     });
 
-    it('should navigate to /reports when See Reports button is clicked', async () => {
+    it('should navigate to /reports when View Reports button is clicked', async () => {
       renderWithProviders(<DashboardPage />);
-      fireEvent.click(await screen.findByRole('button', { name: /see reports/i }));
+      await userEvent.click(await screen.findByRole('button', { name: /view reports/i }));
       expect(mockNavigate).toHaveBeenCalledWith('/reports');
     });
 
     it('should navigate to /work-entries when Add Entry button in recent section is clicked', async () => {
       renderWithProviders(<DashboardPage />);
-      fireEvent.click(await screen.findByRole('button', { name: /add entry/i }));
+      await userEvent.click(await screen.findByRole('button', { name: /add entry/i }));
       expect(mockNavigate).toHaveBeenCalledWith('/work-entries');
     });
   });
