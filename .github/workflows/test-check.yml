@@ -280,19 +280,27 @@ jobs:
 
           Your task:
           1. Clone the repository and checkout branch '${PR_BRANCH}'.
-          2. Run \`git diff origin/${BASE_BRANCH}...HEAD --name-only\` to identify all files changed in this PR.
-          3. For each changed source file (frontend .tsx/.ts files in src/, backend .js files in src/), check whether corresponding test files exist and whether they adequately cover the changes.
-          4. For files with missing or outdated tests, write new tests or update existing ones.
+          2. Run \`git diff origin/${BASE_BRANCH}...HEAD -- ':(exclude)*.test.*' ':(exclude)*.spec.*' ':(exclude)__tests__/'\` to see ONLY the source code changes (not test files).
+          3. For each changed source file (frontend .tsx/.ts files in src/, backend .js files in src/), write NEW test cases that cover the NEW or CHANGED code paths introduced in this PR.
 
           CRITICAL CONSTRAINTS:
-          - You are ONLY allowed to add or edit TEST files. Do NOT modify any source code, components, routes, middleware, or configuration files.
-          - If a test fails because of a bug in the source code, LEAVE IT FAILING. Do not fix the source code. The failing test correctly identifies a code defect.
+          - You are ONLY allowed to ADD new test files or ADD new test cases (describe/it blocks) to existing test files.
+          - Do NOT modify or update any EXISTING test cases. If an existing test is failing, that means it correctly caught a regression or bug — leave it as-is.
+          - Do NOT change assertions, expected values, or button labels in existing tests to match the new source code. Existing tests represent the expected behavior BEFORE this PR.
           - Only add or edit files in __tests__/ directories or files matching *.test.* / *.spec.* patterns.
+          - Do NOT modify any source code, components, routes, middleware, or configuration files.
+          - Before committing, run \`git diff --name-only\` and verify you have NOT modified any lines in existing test cases. If you have, revert those changes.
+
+          What to write tests for:
+          - New functions, components, or API endpoints added in the PR.
+          - New UI elements (buttons, labels, navigation) added or changed in the PR.
+          - New code branches or edge cases introduced by the PR.
+          - Do NOT rewrite tests for functionality that already had tests before this PR.
 
           Testing conventions:
           - Frontend: Use Vitest with @testing-library/react. Tests go in __tests__/ subdirectory adjacent to the source file (e.g., frontend/src/pages/__tests__/ClientsPage.test.tsx). Test setup is at frontend/src/test/setup.ts (imports jest-dom matchers).
           - Backend: Use Jest with supertest. Tests go in backend/src/__tests__/ mirroring the source structure.
-          - Run \`cd frontend && npm run test\` to verify frontend tests.
+          - Run \`cd frontend && npm run test\` to verify your new tests compile and execute. Some tests may fail — that is OK if they are pre-existing failures.
           - Run \`cd backend && npm test\` to verify backend tests.
           - Run \`cd frontend && npm run build\` to ensure the build still succeeds.
 
