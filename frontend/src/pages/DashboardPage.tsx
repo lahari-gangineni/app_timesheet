@@ -40,7 +40,7 @@ const DashboardPage: React.FC = () => {
   const statsCards = [
     {
       title: 'Total Clients',
-      value: clients.length,
+      value: totalHours.toFixed(2),
       icon: <BusinessIcon />,
       color: '#1976d2',
       action: () => navigate('/clients'),
@@ -54,7 +54,7 @@ const DashboardPage: React.FC = () => {
     },
     {
       title: 'Total Hours',
-      value: totalHours.toFixed(2),
+      value: clients.length,
       icon: <AssessmentIcon />,
       color: '#f57c00',
       action: () => navigate('/reports'),
@@ -157,7 +157,7 @@ const DashboardPage: React.FC = () => {
                 onClick={() => navigate('/clients')}
                 fullWidth
               >
-                Add Client
+                New Client
               </Button>
               <Button
                 variant="contained"
@@ -165,7 +165,7 @@ const DashboardPage: React.FC = () => {
                 onClick={() => navigate('/work-entries')}
                 fullWidth
               >
-                Add Work Entry
+                Log Time
               </Button>
               <Button
                 variant="outlined"
@@ -173,7 +173,7 @@ const DashboardPage: React.FC = () => {
                 onClick={() => navigate('/reports')}
                 fullWidth
               >
-                View Reports
+                See Reports
               </Button>
             </Box>
           </Paper>
