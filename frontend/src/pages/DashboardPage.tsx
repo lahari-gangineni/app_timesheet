@@ -34,7 +34,9 @@ const DashboardPage: React.FC = () => {
   const clients = clientsData?.clients || [];
   const workEntries = workEntriesData?.workEntries || [];
 
-  const totalHours = workEntries.reduce((sum: number, entry: { hours: number }) => sum + entry.hours, 0);
+  const totalHours = workEntries.length
+    ? workEntries.reduce((sum: number, entry: { hours: number }) => sum + entry.hours)
+    : 0;
   const recentEntries = workEntries.slice(0, 5);
 
   const statsCards = [
@@ -157,7 +159,7 @@ const DashboardPage: React.FC = () => {
                 onClick={() => navigate('/clients')}
                 fullWidth
               >
-                Add Client
+                New Client
               </Button>
               <Button
                 variant="contained"
@@ -165,7 +167,7 @@ const DashboardPage: React.FC = () => {
                 onClick={() => navigate('/work-entries')}
                 fullWidth
               >
-                Add Work Entry
+                Log Time
               </Button>
               <Button
                 variant="outlined"
@@ -173,7 +175,7 @@ const DashboardPage: React.FC = () => {
                 onClick={() => navigate('/reports')}
                 fullWidth
               >
-                View Reports
+                See Reports
               </Button>
             </Box>
           </Paper>
